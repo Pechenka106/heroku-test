@@ -1,13 +1,16 @@
 import telebot
 from telebot import types
 from requests import get
-from emoji import emojize
+from emoji import *
 import datetime as dt
+import random
+import os
 
 path = 'C:\\Users\\SER\\PycharmProjects\\test'
 commands = {'/start': 'Приветствие',
             '/help': 'Вывод всех команд бота и их функционал',
-            '/images': 'Получить случайную картинку выбранного животного'}
+            '/images': 'Получить случайную картинку выбранного животного',
+            '/music': 'Получить случайную песню из выбранного жанра'}
 
 
 bot = telebot.TeleBot(open(f'{path}\\token.txt', 'r').readline())
@@ -39,36 +42,48 @@ def show_command(msg):
 @bot.message_handler(commands=['images'])
 def get_message(msg):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    [markup.add(types.KeyboardButton(item)) for item in ['Котики', 'Собачки', 'Лисички', 'Стоп']]
+    [markup.add(types.KeyboardButton(item)) for item in ['Котики 🐱', 'Собачки 🐶', 'Лисички 🦊', 'Стоп 🚫']]
     bot.send_message(msg.chat.id, 'Выберите что вы хотите увидеть', reply_markup=markup)
+
+
+@bot.message_handler(commands=['music'])
+def phonk(msg):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    [markup.add(types.KeyboardButton(item)) for item in ['Phonk', 'Стоп 🚫']]
+    bot.send_message(msg.chat.id, 'Выбери что ты хочешь послушать', reply_markup=markup)
 
 
 @bot.message_handler(content_types=['text'])
 def send_photo(msg):
-    if msg.text.lower() == 'котики':
-        bot.send_message(msg.chat.id, 'Секундочку...')
+    if msg.text.lower() == 'котики 🐱':
+        bot.send_message(msg.chat.id, 'Секундочку ⏳')
         photo = open(f'{path}\\photo\\cat.jpg', 'wb')
         url = get(get('https://aws.random.cat/meow').json()['file']).content
         photo.write(url)
         photo.close()
-        bot.send_photo(msg.chat.id, open(f'{path}\\photo\\cat.jpg', 'rb'), 'Воть :)')
-    elif msg.text.lower() == 'собачки':
-        bot.send_message(msg.chat.id, 'Секундочку...')
+        bot.send_photo(msg.chat.id, open(f'{path}\\photo\\cat.jpg', 'rb'), 'Воть 😁')
+    elif msg.text.lower() == 'собачки 🐶':
+        bot.send_message(msg.chat.id, 'Секундочку ⏳')
         photo = open(f'{path}\\photo\\dog.jpg', 'wb')
         url = get(get('https://random.dog/woof.json').json()['url']).content
         photo.write(url)
         photo.close()
-        bot.send_photo(msg.chat.id, open(f'{path}\\photo\\dog.jpg', 'rb'), 'Воть :)')
-    elif msg.text.lower() == 'лисички':
-        bot.send_message(msg.chat.id, 'Секундочку...')
+        bot.send_photo(msg.chat.id, open(f'{path}\\photo\\dog.jpg', 'rb'), 'Воть 😁')
+    elif msg.text.lower() == 'лисички 🦊':
+        bot.send_message(msg.chat.id, 'Секундочку ⏳')
         photo = open(f'{path}\\photo\\fox.jpg', 'wb')
         url = get(get('https://randomfox.ca/floof/').json()['image']).content
         photo.write(url)
         photo.close()
-        bot.send_photo(msg.chat.id, open(f'{path}\\photo\\fox.jpg', 'rb'), 'Воть :)')
-    elif msg.text.lower() == 'стоп':
+        bot.send_photo(msg.chat.id, open(f'{path}\\photo\\fox.jpg', 'rb'), 'Воть 😁')
+    elif msg.text.lower() == 'стоп 🚫':
         bot.send_message(msg.chat.id, 'Похоже хватит на сегодня картиночек)',
                          reply_markup=types.ReplyKeyboardRemove())
+    elif msg.text.lower() == 'phonk':
+        bot.send_message(msg.chat.id, 'Секундочку ⏳')
+        directory = f'{path}\\music\\phonk'
+        music = open(directory + '\\' + random.choice(os.listdir(directory)), 'rb')
+        bot.send_audio(msg.chat.id, music)
 
 
 bot.infinity_polling(timeout=1)
